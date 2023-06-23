@@ -45,7 +45,7 @@ public class OrderRepository {
         return deliveryPartnerDb.get(partnerId);
     }
 
-    public Integer getOrderCountByPartnerId(String partnerId) {
+    public int getOrderCountByPartnerId(String partnerId) {
         return partnerOrdersDb.get(partnerId).size();
     }
 
@@ -60,7 +60,7 @@ public class OrderRepository {
         return orders;
     }
 
-    public Integer getCountOfUnassignedOrders() {
+    public int getCountOfUnassignedOrders() {
         return orderDb.size() - orderPartnerDb.size();
     }
 
