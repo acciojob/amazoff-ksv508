@@ -7,18 +7,18 @@ public class DeliveryPartner {
 
     public DeliveryPartner(String id) {
         this.id = id;
+        this.numberOfOrders = 0;
     }
 
     public String getId() {
         return id;
     }
-    public String setId(){return this.id = id;}
 
     public Integer getNumberOfOrders(){
         return numberOfOrders;
     }
 
-    public void setNumberOfOrders(int numberOfOrders) {
+    public void setNumberOfOrders(Integer numberOfOrders) {
         this.numberOfOrders = numberOfOrders;
     }
 }

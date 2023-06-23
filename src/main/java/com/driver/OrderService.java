@@ -1,77 +1,111 @@
 package com.driver;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class OrderService {
-@Autowired
-    OrderRepository orderRepository;
 
+    //@Autowired
+    OrderRepository orderRepo = new OrderRepository();
     public void addOrder(Order order) {
-        orderRepository.addOrder(order);
+        orderRepo.addOrder(order);
+
     }
 
     public void addPartner(String partnerId) {
-         orderRepository.addPartner(partnerId);
+
+        orderRepo.addPartner(new DeliveryPartner(partnerId));
     }
 
     public void addOrderPartnerPair(String orderId, String partnerId) {
-        orderRepository.addOrderPartnerPair(orderId,partnerId);
+        orderRepo.addOrderPartnerPair(orderId, partnerId);
     }
 
     public Order getOrderById(String orderId) {
-        return orderRepository.getOrderById(orderId);
+        if(orderId == null || orderId.isEmpty())
+            throw new RuntimeException();
+        return orderRepo.getOrderById(orderId);
     }
 
     public DeliveryPartner getPartnerById(String partnerId) {
-        return orderRepository.getPartnerById(partnerId);
+        if(partnerId == null || partnerId.isEmpty())
+            throw new RuntimeException();
+        return orderRepo.getPartnerById(partnerId);
     }
 
-    public int getOrderCountByPartnerId(String partnerId) {
-        return orderRepository.getOrderCountByPartnerId(partnerId);
+
+    public Integer getOrderCountByPartnerId(String partnerId) {
+        return orderRepo.getOrderCountByPartnerId(partnerId);
     }
 
     public List<String> getOrdersByPartnerId(String partnerId) {
-        return orderRepository.getOrdersByPartnerId(partnerId);
+        List<String> list = new ArrayList<>();
+        Map<String,String> map = orderRepo.getOrderPartnerMap();
+
+        for(Map.Entry<String,String> entry : map.entrySet()){
+            if(entry.getValue().equals(partnerId))
+                list.add(entry.getKey());
+        }
+        return list;
     }
 
     public List<String> getAllOrders() {
-        return orderRepository.getAllOrders();
+        return orderRepo.getAllOrders();
     }
 
-    public int getCountOfUnassignedOrders() {
-        return orderRepository.getCountOfUnassignedOrders();
+    public Integer getCountOfUnassignedOrders() {
+
+        return orderRepo.getCountOfUnassignedOrders();
     }
 
-    public int getOrdersLeftAfterGivenTimeByPartnerId(String deliverytime, String partnerId) {
-        String time[]= deliverytime.split(":");
-        int newTime = Integer.parseInt(time[0])*60 + Integer.parseInt(time[1]);
-        return orderRepository.getOrdersLeftAfterGivenTimeByPartnerId(newTime,partnerId);
+    public Integer getOrdersLeftAfterGivenTimeByPartnerId(String time, String partnerId) {
+        Map<String,Order> orderMap = orderRepo.getOrderMap();
+        List<String> orders = getOrdersByPartnerId(partnerId);
+
+        String[] res = time.split(":");
+        Integer t = Integer.parseInt(res[0]) * 60 + Integer.parseInt(res[1]);
+
+        Integer count = 0;
+        for(String order : orders){
+            Order object = orderMap.get(order);
+            if(object.getDeliveryTime() > t)
+                count++;
+        }
+        return count;
     }
 
     public String getLastDeliveryTimeByPartnerId(String partnerId) {
-        int time = orderRepository.getLastDeliveryTimeByPartnerId(partnerId);
-        String HH = String.valueOf(time/60);
-        String MM = String.valueOf(time%60);
-        if(HH.length() < 2)
-            HH = '0'+ HH;
-        if(MM.length() < 2)
-            MM = '0'+ MM;
+        Map<String,Order> orderMap = orderRepo.getOrderMap();
+        List<String> orders = getOrdersByPartnerId(partnerId);
 
-        return HH + ':' + MM;
+        Integer last = Integer.MIN_VALUE ;
+        for(String order : orders){
+            Order object = orderMap.get(order);
+            last = Math.max(last,object.getDeliveryTime());
+        }
+
+        String h = (last / 60)+"";
+        if(h.length() == 1)
+            h = "0"+h;
+        String m = (last % 60)+"";
+        if(m.length() == 1)
+            m = "0"+m;
+
+        return h+":"+m;
+
+
     }
 
     public void deletePartnerById(String partnerId) {
-         orderRepository.deletePartnerById(partnerId);
+        orderRepo.deletePartnerById(partnerId);
     }
 
     public void deleteOrderById(String orderId) {
-        orderRepository.deleteOrderById(orderId);
+        orderRepo.deleteOrderById(orderId);
     }
 }
