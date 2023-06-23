@@ -62,7 +62,7 @@ public class OrderService {
         if(HH.length() < 2)
             HH = '0'+ HH;
         if(MM.length() < 2)
-            MM = '0'+MM;
+            MM = '0'+ MM;
 
         return HH + ':' + MM;
     }

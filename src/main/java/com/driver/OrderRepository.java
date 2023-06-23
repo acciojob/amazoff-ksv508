@@ -23,7 +23,7 @@ public class OrderRepository {
     }
 
     public void addOrderPartnerPair(String orderId, String partnerId) {
-        if(orderDb.containsKey(orderId) && partnerOrdersDb.containsKey(partnerId)){
+        if(orderDb.containsKey(orderId) && deliveryPartnerDb.containsKey(partnerId)){
             orderPartnerDb.put(orderId,partnerId);
             List<String> currentOrder = new ArrayList<>();
             if(partnerOrdersDb.containsKey(partnerId)){
@@ -67,6 +67,7 @@ public class OrderRepository {
     public int getOrdersLeftAfterGivenTimeByPartnerId(int time, String partnerId) {
         int count = 0;
         List<String> orders = partnerOrdersDb.get(partnerId);
+
         for(String orderId : orders){
             int deliveryTime = orderDb.get(orderId).getDeliveryTime();
             if(deliveryTime >time)
@@ -77,8 +78,8 @@ public class OrderRepository {
 
     public int getLastDeliveryTimeByPartnerId(String partnerId) {
         int maxTime = 0;
-        List<String> Orders = partnerOrdersDb.get(partnerId);
-        for(String orderId : Orders){
+        List<String> orders = partnerOrdersDb.get(partnerId);
+        for(String orderId : orders){
             int currentTime = orderDb.get(orderId).getDeliveryTime();
             maxTime = Math.max(maxTime,currentTime);
         }
@@ -96,8 +97,10 @@ public class OrderRepository {
 
     public void deleteOrderById(String orderId) {
         orderDb.remove(orderId);
+
         String partnerId = orderPartnerDb.get(orderId);
         orderPartnerDb.remove(orderId);
+
         partnerOrdersDb.get(partnerId).remove(orderId);
         deliveryPartnerDb.get(partnerId).setNumberOfOrders(partnerOrdersDb.get(partnerId).size());
 
